@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+# ==============================================================================
+# pre-commit hook: ステージされた .py ファイルに ruff を実行
+# ==============================================================================
+
+set -euo pipefail
+
+STAGED_PY=$(git diff --cached --name-only --diff-filter=ACM | grep '\.py$' || true)
+
+if [ -z "$STAGED_PY" ]; then
+    exit 0
+fi
+
+echo "=== pre-commit: ruff check ==="
+uv run ruff check $STAGED_PY
+if [ $? -ne 0 ]; then
+    echo ""
+    echo "ruff check failed. Fix errors or run: uv run ruff check --fix ."
+    exit 1
+fi
+
+echo "=== pre-commit: ruff format check ==="
+uv run ruff format --check $STAGED_PY
+if [ $? -ne 0 ]; then
+    echo ""
+    echo "ruff format check failed. Run: uv run ruff format ."
+    exit 1
+fi
+
+echo "ruff OK"

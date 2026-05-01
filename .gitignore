@@ -1,0 +1,16 @@
+*.egg-info/
+__pycache__/
+build/
+dist/
+
+inputs/
+outputs/
+notebooks/
+
+catboost_info/
+
+cert_TrustCA_pa.crt
+
+.env
+.gpu_logs/
+.claude/settings.local.json

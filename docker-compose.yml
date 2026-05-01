@@ -1,0 +1,96 @@
+# Docker Compose configuration for GPU-enabled Python + Claude Code environment
+# version行を削除（obsoleteの警告を解消）
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        CUDA_TAG: "12.4.1-cudnn-runtime-ubuntu22.04"
+        # プロキシ設定を.envから読み込む
+        http_proxy: ${http_proxy:-}
+        https_proxy: ${https_proxy:-}
+        HTTP_PROXY: ${HTTP_PROXY:-}
+        HTTPS_PROXY: ${HTTPS_PROXY:-}
+        NO_PROXY: ${NO_PROXY:-}
+        no_proxy: ${no_proxy:-}
+
+    # --- GPU を すべて 貸し出す ---
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all          # 1 台だけに固定するなら 1
+              capabilities: ["gpu"]
+
+    volumes:
+      # プロジェクトディレクトリ
+      - ./:/work
+      # Claude Code認証永続化（コンテナ再作成でも認証維持）
+      - claude-config:/root/.claude
+      # Playwrightブラウザキャッシュ
+      - playwright-cache:/root/.cache/ms-playwright
+      # npm globalキャッシュ（再ビルド高速化）
+      - npm-global:/root/.npm-global
+      # uvキャッシュ（再ビルド高速化）
+      - uv-cache:/root/.cache/uv
+
+    environment:
+      # タイムゾーン
+      - TZ=${TZ:-Asia/Tokyo}
+      
+      # Python設定
+      - PYTHONUNBUFFERED=1
+      
+      # Claude Code設定
+      - CLAUDE_CONFIG_DIR=/root/.claude
+      - NODE_OPTIONS=--max-old-space-size=4096
+      # Node.js に会社のCA証明書を認識させる（プロキシSSL検査対応）
+      - NODE_EXTRA_CA_CERTS=/usr/local/share/ca-certificates/cert_TrustCA_pa.crt
+      # プロキシSSL検査環境での証明書検証スキップ（社内ネットワーク用）
+      - NODE_TLS_REJECT_UNAUTHORIZED=0
+      
+      # --- Bedrock設定（.envでコメントアウト切り替え） ---
+      - CLAUDE_CODE_USE_BEDROCK=${CLAUDE_CODE_USE_BEDROCK:-}
+      - AWS_REGION=${AWS_REGION:-}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID:-}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY:-}
+      - ANTHROPIC_MODEL=${ANTHROPIC_MODEL:-}
+
+      # プロキシ設定（ランタイム用）
+      - http_proxy=${http_proxy:-}
+      - https_proxy=${https_proxy:-}
+      - HTTP_PROXY=${HTTP_PROXY:-}
+      - HTTPS_PROXY=${HTTPS_PROXY:-}
+      - NO_PROXY=${NO_PROXY:-localhost,127.0.0.1}
+      - no_proxy=${no_proxy:-localhost,127.0.0.1}
+
+    tty: true
+    stdin_open: true
+    
+    # コンテナを永続化（開発用）
+    command: tail -f /dev/null
+    
+    # ネットワーク設定（MCP HTTP通信用）
+    # ports:
+    #   - "3000:3000"  # MCP HTTP transport用（必要な場合のみ有効化）
+
+# 名前付きボリューム定義
+volumes:
+  # Claude Code認証情報永続化
+  claude-config:
+    name: ${COMPOSE_PROJECT_NAME:-docker-uv-template}_claude-config
+  
+  # Playwrightブラウザキャッシュ
+  playwright-cache:
+    name: ${COMPOSE_PROJECT_NAME:-docker-uv-template}_playwright-cache
+  
+  # npm globalパッケージキャッシュ
+  npm-global:
+    name: ${COMPOSE_PROJECT_NAME:-docker-uv-template}_npm-global
+  
+  # uvパッケージキャッシュ
+  uv-cache:
+    name: ${COMPOSE_PROJECT_NAME:-docker-uv-template}_uv-cache

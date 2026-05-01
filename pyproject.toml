@@ -1,0 +1,83 @@
+# pyproject.toml
+[project]
+name = "docker-uv-template"
+version = "0.1.0"
+requires-python = ">=3.10,<3.12"
+description = "GPU-enabled Python project managed by uv"
+
+dependencies = [
+  "catboost>=1.2.8",
+  "ipykernel>=6.29.5",
+  "numpy>=1.26",
+  "pandas>=2.2",
+  "scikit-learn>=1.6.1",
+  "tensorflow>=2.19.0",
+  "torch>=2.7.0",
+  "xgboost>=3.0.2",
+  "ruff>=0.3.0",
+  "jupyter>=1.0.0",
+  "jupyterlab>=4.0.0",
+]
+
+[build-system]
+requires = ["uv", "setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.uv.pip]
+extra-index-url = ["https://download.pytorch.org/whl/cu124"]
+
+# ruffの設定
+[tool.ruff]
+line-length = 88
+target-version = "py310"
+indent-width = 4
+extend-exclude = [
+    "__pycache__",
+    ".git",
+    "*.ipynb_checkpoints",
+    "*.pyc",
+    "catboost_info",
+]
+
+# ルールセット
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle
+    "F",    # pyflakes
+    "I",    # isort
+    "UP",   # pyupgrade
+    "N",    # pep8-naming
+    "C4",   # flake8-comprehensions
+    "BLE",  # flake8-blind-except
+    "B",    # flake8-bugbear
+    "A",    # flake8-builtins
+    "COM",  # flake8-commas
+    "C90",  # mccabe complexity
+    "DTZ",  # flake8-datetimez
+    "T10",  # flake8-debugger
+    "ISC",  # flake8-implicit-str-concat
+    "G",    # flake8-logging-format
+    "PIE",  # flake8-pie
+    "PT",   # flake8-pytest-style
+    "Q",    # flake8-quotes
+    "RET",  # flake8-return
+    "SIM",  # flake8-simplify
+    "TID",  # flake8-tidy-imports
+    "TCH",  # flake8-type-checking
+    "ARG",  # flake8-unused-arguments
+    "PTH",  # flake8-use-pathlib
+    "ERA",  # eradicate
+    "PL",   # pylint
+    "TRY",  # tryceratops
+    "FLY",  # flynt
+    "RUF",  # ruff-specific rules
+]
+ignore = [
+    "E501",    # Line too long
+]
+
+# 自動修正設定
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "lf"
