@@ -29,8 +29,8 @@ ENV DEBIAN_FRONTEND=noninteractive \
     NODE_OPTIONS="--max-old-space-size=4096"
 
 # --------- 会社プロキシ証明書がある場合のみ有効化 ----------
-COPY cert_TrustCA_pa.crt /usr/local/share/ca-certificates/
-RUN update-ca-certificates
+# COPY cert_TrustCA_pa.crt /usr/local/share/ca-certificates/
+# RUN update-ca-certificates
 
 # ====================== 3. システムパッケージ ===================
 RUN apt-get update \
