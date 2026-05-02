@@ -46,6 +46,7 @@ find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null; find . -type f
 - `pyproject.toml` - Python dependencies and ruff configuration
 - `.claude.json` - MCP server configurations
 - `.textlintrc.json` - Japanese text linting rules
+- `AGENTS.md` - OpenAI Codex レビュワー設定
 
 ## MCP Servers Available
 
@@ -82,6 +83,34 @@ Python script execution is automatically serialized via `flock` by a PreToolUse 
 - Always execute Python scripts via `uv run python`
 - Check GPU lock status: `flock -n /var/lock/gpu.lock echo "GPU: 空き" || echo "GPU: 使用中"`
 - Logs are recorded in `.gpu_logs/gpu_queue.log`
+
+## Codex レビュワー
+
+OpenAI Codex CLI がレビュー専用ツールとしてインストール済み。ユーザーからレビュー依頼があった場合に使用する。
+
+**レビュー実行（推奨）:**
+```bash
+bash scripts/codex-review.sh              # main との差分をレビュー
+bash scripts/codex-review.sh develop       # 任意のブランチとの差分をレビュー
+bash scripts/codex-review.sh --file <path> # 特定ファイルをレビュー
+```
+
+**直接実行:**
+```bash
+# diff を渡してレビュー
+git diff main | codex exec --sandbox read-only --output-last-message "このdiffをレビューして"
+
+# ファイルを渡してレビュー
+cat src/train.py | codex exec --sandbox read-only --output-last-message "このコードをレビューして"
+
+# 対話モードで調査
+codex
+```
+
+**ルール:**
+- Codex はレビュー専用。ファイル変更は Claude Code が行う
+- `--sandbox read-only` を必ず使用すること
+- レビュー結果は日本語で要約してユーザーに報告すること
 
 ## Permission Policy
 

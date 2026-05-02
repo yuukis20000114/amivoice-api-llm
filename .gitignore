@@ -14,3 +14,5 @@ cert_TrustCA_pa.crt
 .env
 .gpu_logs/
 .claude/settings.local.json
+
+.codex/

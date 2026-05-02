@@ -6,7 +6,7 @@ NVIDIA GPU対応のPython開発環境を、[uv](https://github.com/astral-sh/uv)
 
 - **GPU対応**: NVIDIA CUDA 12.4 & cuDNN ベース
 - **高速パッケージ管理**: [uv](https://github.com/astral-sh/uv) パッケージマネージャ採用
-- **AI開発支援**: Claude Code CLI + MCPサーバー統合
+- **AI開発支援**: Claude Code CLI + MCPサーバー統合 + Codex レビュワー
 - **主要MLライブラリ**: PyTorch, TensorFlow, CatBoost, XGBoostをGPU対応で事前設定
 - **開発環境**: Jupyter Lab、ruff（Linter/Formatter）
 - **日本語対応**: textlint MCPで技術文書の品質チェック
@@ -16,6 +16,7 @@ NVIDIA GPU対応のPython開発環境を、[uv](https://github.com/astral-sh/uv)
 - [Docker](https://www.docker.com/) と [Docker Compose](https://docs.docker.com/compose/)
 - [NVIDIA Container Toolkit](https://github.com/NVIDIA/nvidia-docker)
 - Anthropic APIアクセス（Claude Code用）: [Claude Max](https://claude.ai/settings/billing) または [API Key](https://console.anthropic.com/)
+- ChatGPTサブスクリプション（Codexレビュー用）: [ChatGPT Plus/Pro](https://chatgpt.com/)
 
 ## クイックスタート
 
@@ -43,7 +44,7 @@ docker compose up -d --build
 docker compose exec app bash
 ```
 
-### 4. Claude Code初回セットアップ
+### 4. 初回セットアップ
 
 ```bash
 # コンテナ内で実行
@@ -51,6 +52,9 @@ bash scripts/setup-claude.sh
 
 # Claude Code認証（ブラウザでOAuth認証）
 claude
+
+# Codex認証（ブラウザでChatGPTアカウント認証）
+codex login
 ```
 
 ### 5. 動作確認
@@ -78,8 +82,10 @@ jupyter lab --ip=0.0.0.0 --port=8888 --no-browser --allow-root
 ├── .claude.json          # MCP設定
 ├── .textlintrc.json      # textlint設定
 ├── CLAUDE.md             # Claude Code用プロジェクト説明
+├── AGENTS.md             # Codex用プロジェクト設定
 ├── scripts/
-│   └── setup-claude.sh   # 初回セットアップスクリプト
+│   ├── setup-claude.sh   # 初回セットアップスクリプト
+│   └── codex-review.sh   # Codexレビュー用ラッパースクリプト
 ├── src/                  # ソースコード
 │   ├── check_gpu.py      # GPU動作確認用スクリプト
 │   └── README.md
@@ -134,6 +140,45 @@ claude
 # playwright: ブラウザ操作
 > https://pytorch.org にアクセスして最新バージョンを確認して
 ```
+
+## Codex コードレビュー
+
+[OpenAI Codex](https://openai.com/index/codex/) CLI をコードレビュワーとして統合しています。Claude Code で開発し、Codex に別視点からのレビューを依頼するワークフローです。
+
+### 初回セットアップ
+
+ChatGPT Plus/Pro/Business/Edu/Enterprise サブスクリプションが必要です。
+
+```bash
+# コンテナ内で実行
+codex login
+# → 表示されるURLをブラウザで開いてChatGPTアカウントで認証
+```
+
+### 使い方
+
+```bash
+# mainブランチとの差分をレビュー
+bash scripts/codex-review.sh
+
+# 特定ブランチとの差分をレビュー
+bash scripts/codex-review.sh develop
+
+# 特定ファイルをレビュー
+bash scripts/codex-review.sh --file src/train.py
+
+# Claude Code経由（推奨）
+claude
+> Codexに現在の差分をレビューさせて
+> このファイルをCodexにレビューさせて: src/train.py
+```
+
+### 設定ファイル
+
+| ファイル | 用途 |
+|---------|------|
+| `AGENTS.md` | Codex 用プロジェクト設定（レビュー方針・コードスタイル） |
+| `scripts/codex-review.sh` | レビュー用ラッパースクリプト |
 
 ## GPU確認方法
 
@@ -269,8 +314,11 @@ docker compose up -d             # キャッシュ活用
 # ボリューム一覧
 docker volume ls | grep docker-uv-template
 
-# 認証情報のみリセット
+# Claude認証情報のみリセット
 docker volume rm docker-uv-template_claude-config
+
+# Codex認証情報のみリセット
+docker volume rm docker-uv-template_codex-config
 
 # 全ボリューム削除（注意：認証情報も削除されます）
 docker compose down -v

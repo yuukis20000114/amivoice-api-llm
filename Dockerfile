@@ -80,6 +80,10 @@ RUN curl -Ls https://astral.sh/uv/install.sh | sh \
 RUN npm install -g @anthropic-ai/claude-code \
  && claude --version || echo "Claude Code installed (version check may require auth)"
 
+# ====================== 6.5. Codex CLI インストール ==============
+RUN npm install -g @openai/codex \
+ && codex --version || echo "Codex CLI installed"
+
 # MCP用Node.jsパッケージ（事前インストールでnpx高速化）
 RUN npm install -g \
     @anthropic-ai/claude-code \
@@ -109,6 +113,7 @@ COPY . .
 # ====================== 9. GPU直列化セットアップ =================
 RUN chmod +x /work/scripts/run_gpu.sh \
  && ln -sf /work/scripts/run_gpu.sh /usr/local/bin/run_gpu \
+ && chmod +x /work/scripts/codex-review.sh \
  && chmod +x /work/.claude/hooks/gpu_serialize.sh \
  && mkdir -p /work/.gpu_logs
 

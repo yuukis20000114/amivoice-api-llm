@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# Claude Code 初回セットアップスクリプト
+# Claude Code + Codex 初回セットアップスクリプト
 # ==============================================================================
 # 使用方法:
 #   docker compose exec app bash scripts/setup-claude.sh
@@ -35,7 +35,7 @@ log_error() {
 # ヘッダー表示
 echo ""
 echo "=============================================="
-echo " Claude Code + MCP 初回セットアップ"
+echo " Claude Code + Codex + MCP 初回セットアップ"
 echo "=============================================="
 echo ""
 
@@ -187,9 +187,27 @@ else
     log_warn ".claude/settings.jsonが見つかりません（GPU自動直列化が無効）"
 fi
 
+# 8. Codex CLI確認
+log_info "OpenAI Codex CLI を確認しています..."
+
+if command -v codex &> /dev/null; then
+    log_success "Codex CLI: インストール済み"
+else
+    log_warn "Codex CLI: 未インストール"
+    log_info "インストール: npm install -g @openai/codex"
+fi
+
+# Codex認証状態確認
+if [ -d "/root/.codex" ] && ls /root/.codex/auth* &> /dev/null 2>&1; then
+    log_success "Codex: 認証済み"
+else
+    log_warn "Codex: 未認証"
+    log_info "認証: codex login （ChatGPTアカウントで認証）"
+fi
+
 echo ""
 
-# 8. サマリー
+# 9. サマリー
 echo "=============================================="
 echo " セットアップ完了"
 echo "=============================================="
@@ -205,7 +223,10 @@ echo ""
 echo "  3. GPU確認:"
 echo "     ${GREEN}python src/check_gpu.py${NC}"
 echo ""
-echo "  4. Jupyter Lab起動:"
+echo "  4. Codex認証（未認証の場合）:"
+echo "     ${GREEN}codex login${NC}"
+echo ""
+echo "  5. Jupyter Lab起動:"
 echo "     ${GREEN}jupyter lab --ip=0.0.0.0 --port=8888 --no-browser --allow-root${NC}"
 echo ""
 echo "=============================================="
