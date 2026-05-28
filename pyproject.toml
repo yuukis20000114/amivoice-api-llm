@@ -17,6 +17,21 @@ dependencies = [
   "ruff>=0.3.0",
   "jupyter>=1.0.0",
   "jupyterlab>=4.0.0",
+  "datasets>=2.20",
+  "soundfile>=0.13.1",
+  "librosa>=0.11.0",
+  "tqdm>=4.67.3",
+  "requests>=2.32.3",
+  "python-dotenv>=1.2.2",
+  "tenacity>=9.1.4",
+  "jiwer>=4.0.0",
+  "sudachipy>=0.6.11",
+  "sudachidict-core>=20260428",
+  "google-cloud-speech>=2.39.0",
+  "transformers>=5.8.1",
+  "accelerate>=1.13.0",
+  "boto3>=1.43.9",
+  "anthropic>=0.103.1",
 ]
 
 [build-system]
@@ -38,6 +53,9 @@ extend-exclude = [
     "*.pyc",
     "catboost_info",
 ]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["PLR2004", "PLC0415"]
 
 # ルールセット
 [tool.ruff.lint]
@@ -74,6 +92,8 @@ select = [
 ]
 ignore = [
     "E501",    # Line too long
+    "RUF001",  # Ambiguous unicode in strings (fullwidth Japanese chars)
+    "RUF002",  # Ambiguous unicode in docstrings (fullwidth Japanese chars)
 ]
 
 # 自動修正設定
@@ -81,3 +101,8 @@ ignore = [
 quote-style = "double"
 indent-style = "space"
 line-ending = "lf"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.3",
+]

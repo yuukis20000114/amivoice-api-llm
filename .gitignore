@@ -16,3 +16,9 @@ cert_TrustCA_pa.crt
 .claude/settings.local.json
 
 .codex/
+
+secrets/
+
+node_modules/
+package.json
+package-lock.json

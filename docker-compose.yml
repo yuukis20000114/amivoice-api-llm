@@ -61,6 +61,18 @@ services:
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY:-}
       - ANTHROPIC_MODEL=${ANTHROPIC_MODEL:-}
 
+      # HuggingFace Hub (Common Voice などのゲート付きデータセット用)
+      - HF_TOKEN=${HF_TOKEN:-}
+
+      # AmiVoice Cloud Platform
+      - AMIVOICE_API_KEY=${AMIVOICE_API_KEY:-}
+      - AMIVOICE_ENGINE=${AMIVOICE_ENGINE:-}
+
+      # GCP Speech-to-Text
+      - GOOGLE_APPLICATION_CREDENTIALS=${GOOGLE_APPLICATION_CREDENTIALS:-}
+      - GCP_LOCATION=${GCP_LOCATION:-global}
+      - GCP_SPEECH_MODEL=${GCP_SPEECH_MODEL:-latest_long}
+
       # プロキシ設定（ランタイム用）
       - http_proxy=${http_proxy:-}
       - https_proxy=${https_proxy:-}
